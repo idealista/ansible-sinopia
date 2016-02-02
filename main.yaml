@@ -1,0 +1,7 @@
+- hosts: npm-repository
+  sudo : True
+
+  roles:
+    - node
+    - nginx
+    - sinopia

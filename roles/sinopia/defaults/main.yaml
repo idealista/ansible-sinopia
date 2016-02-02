@@ -1,0 +1,27 @@
+sinopia_config: '/etc/sinopia'
+sinopia_host: npmrepository
+sinopia_port: 4873
+sinopia_htpasswd:
+  - username: deployer
+    password: $6$zMp9wezMEVZmPQ==$WD/aydC2YC4QnG/WhHp5SrJUlcm7fyi5IakCMVs9ITqZmaM6mclMnC2vMJl1EAiboeCirvHvDyixdb6prODfI0
+sinopia_manage_users: yes
+sinopia_max_users: 2
+sinopia_storage: '/var/sinopia'
+sinopia_user: sinopia
+sinopia_version: 1.4.0
+sinopia_log: '/var/log/sinopia'
+
+sinopia_uplinks:
+  - name: npmjs
+    url: https://registry.npmjs.org/
+
+sinopia_packages:
+  - name: 'id-*'
+    access: '$anonymous'
+    publish: 'deployer'
+  - name: '*'
+    access: '$anonymous'
+    publish: '$authenticated'
+    proxy: npmjs
+
+internal_ip: 10.0.0.0/8

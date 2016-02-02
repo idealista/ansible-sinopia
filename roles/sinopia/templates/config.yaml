@@ -1,0 +1,46 @@
+# Taken from:
+# https://github.com/rlidwka/sinopia/tree/master/conf
+
+storage: {{ sinopia_storage }}
+
+web:
+  enable: true
+
+auth:
+  htpasswd:
+    file: {{ sinopia_config }}/users
+    max_users: {{ sinopia_max_users }}
+
+# a list of other known repositories we can talk to
+uplinks:
+{% for uplink in sinopia_uplinks %}
+  '{{ uplink.name }}':
+    url: '{{ uplink.url }}'
+{% endfor %}
+
+packages:
+{% for pkg in sinopia_packages %}
+  '{{ pkg.name }}':
+{% if 'access' in pkg %}
+    access: {{ pkg.access }}
+{% endif %}
+{% if 'publish' in pkg %}
+    publish: {{ pkg.publish }}
+{% endif %}
+{% if 'proxy' in pkg %}
+    proxy: {{ pkg.proxy }}
+{% endif %}
+{% endfor %}
+
+{% if sinopia_url_prefix is defined %}
+url_prefix: {{ sinopia_url_prefix }}
+{% endif %}
+
+# log settings
+logs:
+  - {type: file, path: {{ sinopia_log }}/sinopia.log, level: http}
+
+url_prefix: http://{{ sinopia_host }}/
+
+listen:
+  - 127.0.0.1:{{ sinopia_port }}

@@ -1,0 +1,4 @@
+# do not touch!
+{% for user in sinopia_htpasswd %}
+{{ user.username }}:{{ user.password }}
+{% endfor %}

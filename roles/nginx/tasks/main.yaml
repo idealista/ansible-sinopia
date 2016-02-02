@@ -1,0 +1,49 @@
+---
+- name: Install zlib
+  apt: name=zlib1g-dev update_cache=yes state=present
+
+- name: Install prce needed by nginx
+  apt: name=libpcre3-dev update_cache=yes state=present
+
+- name: Check if nginx is installed
+  command: whereis nginx
+  register: nginx_check
+
+- name: Download nginx
+  get_url: url=http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz dest=/tmp
+  when: "nginx_check.stdout.find('nginx: ') == -1"
+
+- name: Untar nginx
+  command: chdir=/tmp tar -xzf nginx-{{ nginx_version }}.tar.gz
+  when: "nginx_check.stdout.find('nginx: ') == -1"
+
+- name: Install nginx
+  command: chdir=/tmp/nginx-{{ nginx_version }} {{item}}
+  with_items:
+    - ./configure \
+        --prefix=/usr \
+        --conf-path={{ nginx_conf }} \
+        --error-log-path={{ nginx_err }} \
+        --http-log-path={{ nginx_acc }} \
+        --pid-path=/var/run/nginx.pid \
+        --lock-path=/var/lock/nginx.lock
+    - make
+    - sudo make install
+  when: "nginx_check.stdout.find('nginx: ') == -1"
+
+- name: Copy nginx config
+  template: src=nginx.conf dest=/etc/nginx
+  notify: restart nginx
+
+- name: Create extra configuration directory
+  file: path=/etc/nginx/{{ item }} state=directory
+  with_items:
+    - sites-available
+    - sites-enabled
+
+- name: Copy Daemon script
+  copy: src=daemon dest=/etc/init.d/nginx  mode=0755
+  notify: restart nginx
+
+- name: Update rc
+  shell: update-rc.d -f nginx defaults

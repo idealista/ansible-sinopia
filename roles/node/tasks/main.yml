@@ -1,0 +1,23 @@
+---
+- name: Install g++
+  apt: name=g++ update_cache=yes state=present
+
+- name: Check if node is installed
+  command: whereis node
+  register: node_check
+
+- name: Download node
+  get_url: url=http://nodejs.org/dist/v{{ node_version }}/node-v{{ node_version }}.tar.gz dest=/tmp
+  when: "node_check.stdout.find('node: ') == -1"
+
+- name: Untar node
+  command: chdir=/tmp tar -xzf node-v{{ node_version }}.tar.gz
+  when: "node_check.stdout.find('node: ') == -1"
+
+- name: Install node
+  command: chdir=/tmp/node-v{{ node_version }} {{item}}
+  with_items:
+    - ./configure
+    - make
+    - sudo make install
+  when: "node_check.stdout.find('node: ') == -1"

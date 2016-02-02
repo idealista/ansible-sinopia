@@ -1,0 +1,8 @@
+server {
+    listen 80;
+    location / {
+        allow {{ internal_ip }};
+        deny all;
+        proxy_pass http://127.0.0.1:{{ sinopia_port }};
+    }
+}
